@@ -10,24 +10,24 @@ class State(Enum):
     Pass = 4
 
 
-class Card:
-    #init a virtual 1v1 poker table
+class PokerTable:
+    # init a virtual 1v1 poker table
     def __init__(self, balance1, balance2):
         self.balance1 = balance1
         self.balance2 = balance2
         self.pot = 0
         self.bid1 = 0
-        self.bid2 = 0 # bid of each player in this circle
+        self.bid2 = 0  # bid of each player in this circle
         self.state1 = State.No
         self.state2 = State.No
         self.deck = Deck()
 
-        self.open = [] #opened cards len <= 5
+        self.open = []  # opened cards len <= 5
 
         self.cards1 = [self.deck.pick(), self.deck.pick()]
         self.cards2 = [self.deck.pick(), self.deck.pick()]
 
-        self.turn = False # False - 1 turn True - 2 turn
+        self.turn = False  # False - 1 turn True - 2 turn
         self.winner = -1
 
     def next_circle(self):
@@ -49,7 +49,7 @@ class Card:
         self.open.append(self.deck.pick())
 
     def first_check(self):
-        self.turn = not self.turn #TODO check whos turn is now
+        self.turn = not self.turn  # TODO check whos turn is now
         if self.state2 == State.Raise:
             raise Exception("Imposible to check")
         self.state1 = State.Check
@@ -77,7 +77,7 @@ class Card:
         self.pot += value
         self.state1 = State.Raise
 
-    def second_raise(self, value): #TODO one of the players has zero balance than nobody can raise
+    def second_raise(self, value):  # TODO one of the players has zero balance than nobody can raise
         self.turn = not self.turn
         if self.bid2 + value < self.bid1:
             raise Exception("The sum is too low")
@@ -129,6 +129,6 @@ class Card:
         self.next_circle()
 
     def results(self):
-        pass #TODO who wins logic
+        pass  # TODO who wins logic
 
 # TODO get balance cards ... funcs if needed
