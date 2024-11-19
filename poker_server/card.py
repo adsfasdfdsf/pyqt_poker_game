@@ -2,7 +2,7 @@ from enum import Enum
 from random import choice
 
 
-class Suit:
+class Suit(Enum):
     Spears = 0
     Spades = 1
     Hearts = 2

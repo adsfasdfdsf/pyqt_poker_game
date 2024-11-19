@@ -1,5 +1,7 @@
 from enum import Enum
 from card import Deck
+from collections import Counter
+from itertools import combinations
 
 
 class State(Enum):
@@ -32,7 +34,7 @@ class PokerTable:
 
     def next_circle(self):
         if len(self.open) == 5:
-            self.winner = self.results()
+            self.winner = result(self.open, self.cards1, self.cards2)
             if self.winner == 1:
                 self.balance1 += self.pot
             elif self.winner == 2:
@@ -128,7 +130,62 @@ class PokerTable:
         self.state2 = State.Pass
         self.next_circle()
 
-    def results(self):
-        pass  # TODO who wins logic
 
 # TODO get balance cards ... funcs if needed
+def evaluate_hand(hand):
+    values = sorted([card.value for card in hand], reverse=True)
+    suits = [card.suit for card in hand]
+    value_counts = Counter(values)
+    is_flush = len(set(suits)) == 1
+    is_straight = len(set(values)) == 5 and (values[0] - values[-1] == 4 or values == [14, 5, 4, 3, 2])
+
+    if is_flush and is_straight:
+        return (8, values)  # Стрит-флэш
+    if 4 in value_counts.values():
+        four = max(k for k, v in value_counts.items() if v == 4)
+        kicker = max(k for k, v in value_counts.items() if v < 4)
+        return (7, [four, kicker])  # Каре
+    if 3 in value_counts.values() and 2 in value_counts.values():
+        three = max(k for k, v in value_counts.items() if v == 3)
+        two = max(k for k, v in value_counts.items() if v == 2)
+        return (6, [three, two])  # Фулл-хаус
+    if is_flush:
+        return (5, values)  # Флэш
+    if is_straight:
+        return (4, values)  # Стрит
+    if 3 in value_counts.values():
+        three = max(k for k, v in value_counts.items() if v == 3)
+        kickers = sorted([k for k, v in value_counts.items() if v < 3], reverse=True)
+        return (3, [three] + kickers)  # Сет
+    if list(value_counts.values()).count(2) == 2:
+        pairs = sorted((k for k, v in value_counts.items() if v == 2), reverse=True)
+        kicker = max(k for k, v in value_counts.items() if v == 1)
+        return (2, pairs + [kicker])  # Две пары
+    if 2 in value_counts.values():
+        pair = max(k for k, v in value_counts.items() if v == 2)
+        kickers = sorted([k for k, v in value_counts.items() if v < 2], reverse=True)
+        return (1, [pair] + kickers)  # Одна пара
+    return (0, values)  # Старшая карта
+
+
+def result(lst, first, second):
+    # Все карты на столе + карты игроков
+    community_cards = lst
+    player1_cards = community_cards + first
+    player2_cards = community_cards + second
+
+    # Все комбинации из 5 карт для каждого игрока
+    player1_hands = [hand for hand in combinations(player1_cards, 5)]
+    player2_hands = [hand for hand in combinations(player2_cards, 5)]
+
+    # Оцениваем каждую комбинацию
+    player1_best = max([evaluate_hand(hand) for hand in player1_hands])
+    player2_best = max([evaluate_hand(hand) for hand in player2_hands])
+
+    # Сравнение комбинаций
+    if player1_best > player2_best:
+        return 1
+    elif player1_best < player2_best:
+        return 2
+    else:
+        return 0
