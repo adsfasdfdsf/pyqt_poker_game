@@ -20,25 +20,32 @@ class Ui_MainWindow(object):
         self.table_pixmap.setGeometry(QtCore.QRect(0, 50, 861, 451))
         self.table_pixmap.setScaledContents(True)
         self.table_pixmap.setObjectName("table_pixmap")
+
         self.pot_label = QtWidgets.QLabel(parent=self.centralwidget)
         self.pot_label.setGeometry(QtCore.QRect(10, 10, 101, 31))
         self.pot_label.setObjectName("pot_label")
+
         self.raise_slider = QtWidgets.QSlider(parent=self.centralwidget)
         self.raise_slider.setGeometry(QtCore.QRect(330, 560, 160, 22))
         self.raise_slider.setOrientation(QtCore.Qt.Orientation.Horizontal)
         self.raise_slider.setObjectName("raise_slider")
+
         self.check_button = QtWidgets.QPushButton(parent=self.centralwidget)
         self.check_button.setGeometry(QtCore.QRect(10, 550, 113, 32))
         self.check_button.setObjectName("check_button")
+
         self.call_button = QtWidgets.QPushButton(parent=self.centralwidget)
         self.call_button.setGeometry(QtCore.QRect(160, 550, 113, 32))
         self.call_button.setObjectName("call_button")
+
         self.raise_button = QtWidgets.QPushButton(parent=self.centralwidget)
         self.raise_button.setGeometry(QtCore.QRect(520, 550, 113, 32))
         self.raise_button.setObjectName("raise_button")
+
         self.pass_button = QtWidgets.QPushButton(parent=self.centralwidget)
         self.pass_button.setGeometry(QtCore.QRect(680, 550, 113, 32))
         self.pass_button.setObjectName("pass_button")
+
         self.label = QtWidgets.QLabel(parent=self.centralwidget)
         self.label.setGeometry(QtCore.QRect(350, 540, 131, 16))
         self.label.setObjectName("label")
@@ -48,6 +55,11 @@ class Ui_MainWindow(object):
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
         self.table_pixmap.setPixmap(QPixmap.fromImage(QImage("./img/poker_table.png")))
         self.table_pixmap.setScaledContents(True)
+        self.slider_value = 0
+        self.raise_slider.valueChanged.connect(self.valueChanged)
+
+    def valueChanged(self, value):
+        self.slider_value = value
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
