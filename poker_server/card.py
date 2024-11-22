@@ -9,6 +9,9 @@ class Suit(Enum):
     Diamonds = 3
 
 
+suits = {Suit.Spades: "Spades", Suit.Spears: "Spears", Suit.Hearts: "Hearts", Suit.Diamonds: "Diamonds"}
+
+
 class Deck:
     def __init__(self):
         self.deck = []
