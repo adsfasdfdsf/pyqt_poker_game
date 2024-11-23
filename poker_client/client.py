@@ -1,3 +1,4 @@
+import json
 import sys
 from PIL import Image
 
@@ -5,14 +6,15 @@ from PyQt6.QtGui import QPixmap, QImage
 from PyQt6.QtWidgets import QMainWindow, QLabel, QApplication
 from poker_client import Ui_MainWindow
 from PyQt6 import QtCore
-from card import Card
+from card import Card, suits
+from PyQt6.QtNetwork import QTcpSocket
 
 
 def make_table(my_cards, deck):
     image = Image.open("./img/poker_table.png")
     first, second = my_cards
-    card1 = Image.open(f"./img/deck/{first.suit}/card_{first.value}.png")
-    card2 = Image.open(f"./img/deck/{second.suit}/card_{second.value}.png")
+    card1 = Image.open(f"./img/deck/{suits[first.suit]}/card_{first.value}.png")
+    card2 = Image.open(f"./img/deck/{suits[second.suit]}/card_{second.value}.png")
     unknown = Image.open("./img/unknown.png")
     card_width, card_height = unknown.size
     x, y = image.size
@@ -25,7 +27,7 @@ def make_table(my_cards, deck):
     cards = len(deck)
 
     for i in range(cards):
-        cur = Image.open(f"./img/deck/{deck[i].suit}/card_{deck[1].value}.png")
+        cur = Image.open(f"./img/deck/{suits[deck[i].suit]}/card_{deck[1].value}.png")
         image.paste(cur, ((x // 5) + (x // 8) * i, y // 3))
 
     for i in range(cards, 5):
@@ -34,13 +36,28 @@ def make_table(my_cards, deck):
     image.save(f"./img/current_table.png")
 
 
-
 class PokerApp(QMainWindow, Ui_MainWindow):
     def __init__(self):
         super().__init__()
         self.setupUi(self)
         self.deck = []
         self.hand = [Card("Diamonds", 4), Card("Diamonds", 6)]
+        self.socket = QTcpSocket(self)
+        self.socket.connected.connect(self.on_connected)
+        self.socket.readyRead.connect(self.on_ready_read)
+        self.socket.connectToHost("127.0.0.1", 50051)
+
+
+    def on_ready_read(self):
+        msg = self.sender().readAll()
+        data = json.loads(msg)
+        #TODO handle commands
+
+        self.update_background()
+
+    def on_connected(self):
+        print("smthing")
+        self.socket.write(str.encode("slafdf;a"))
 
     @QtCore.pyqtSlot()
     def on_pass_button_clicked(self):
@@ -50,7 +67,6 @@ class PokerApp(QMainWindow, Ui_MainWindow):
     @QtCore.pyqtSlot()
     def on_check_button_clicked(self):
         print("check clicked")
-
 
     @QtCore.pyqtSlot()
     def on_raise_button_clicked(self):
