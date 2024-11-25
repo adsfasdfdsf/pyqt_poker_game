@@ -10,6 +10,7 @@ class Suit(Enum):
 
 
 suits = {Suit.Spades: "Spades", Suit.Spears: "Spears", Suit.Hearts: "Hearts", Suit.Diamonds: "Diamonds"}
+to_suits = {"Spades": Suit.Spades, "Spears": Suit.Spears, "Hearts": Suit.Hearts, "Diamonds": Suit.Diamonds}
 
 
 class Deck:

@@ -60,6 +60,7 @@ class Ui_MainWindow(object):
 
     def valueChanged(self, value):
         self.slider_value = value
+        self.label.setText(f"Amount to raise: {self.slider_value}")
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate

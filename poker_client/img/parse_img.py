@@ -11,7 +11,7 @@ card_height = 1216 // 5
 print(card_width, card_height)
 card_count = 1
 for row in range(4):
-    for col in range(14):
+    for col in range(15):
         left = col * card_width
         upper = row * card_height
         right = left + card_width
