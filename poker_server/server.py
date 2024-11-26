@@ -3,7 +3,7 @@ from PyQt6.QtNetwork import QTcpServer, QTcpSocket
 from PyQt6.QtCore import QObject
 from PyQt6.QtWidgets import QApplication
 import json
-
+from time import sleep
 
 from poker_table import PokerTable
 from card import suits
@@ -21,7 +21,7 @@ class Session(QObject):
         )
 
     def write(self, text):
-        self.socket.write(str.encode(text))
+        self.socket.write(str.encode(text + "/n"))
 
 
 class Server(QObject):
@@ -56,11 +56,18 @@ class Server(QObject):
 
 
     def start_game(self):
+        prev_winner = self.poker_table.winner
+        win = {}
+        win["command"] = "result"
+        win["winner"] = "player_" + str(prev_winner)
+        self.client1.write(json.dumps([win]))
+        self.client2.write(json.dumps([win]))
         self.meet_player(1)
         self.meet_player(2)
 
 
     def meet_player(self, num):
+        self.poker_table = PokerTable(self.poker_table.balance1, self.poker_table.balance2)
         if num == 1:
             print("meet 1")
             data = {}
@@ -81,8 +88,9 @@ class Server(QObject):
             data3["command"] = "set_name"
             data3["name"] = "player_1"
 
+
             msg = json.dumps([data3, data, data2])
-            print(msg)
+            print(msg, 1)
             self.client1.write(msg)
         else:
             print("meet 2")
@@ -109,58 +117,106 @@ class Server(QObject):
             print(msg)
             self.client2.write(msg)
 
-
     def pass_option(self, msg):
+        com = self.community_cards()
         if msg["name"] == "player_1":
             self.poker_table.first_pass()
         else:
             self.poker_table.second_pass()
-
+        if self.poker_table.winner != -1:
+            sleep(2)
+            self.start_game()
 
     def check_option(self, msg):
+        com = self.community_cards()
         if msg["name"] == "player_1":
             self.poker_table.first_check()
+            data = {}
+            data["command"] = "set_opp"
+            data["state"] = "Check"
+            self.client2.write(json.dumps([data, com]))
+            self.client1.write(json.dumps([com]))
         else:
             self.poker_table.second_check()
+            data = {}
+            data["command"] = "set_opp"
+            data["state"] = "Check"
+            self.client1.write(json.dumps([data, com]))
+            self.client2.write(json.dumps([com]))
+        if self.poker_table.winner != -1:
+            sleep(2)
+            self.start_game()
 
     def raise_option(self, msg):
+        com = self.community_cards()
         if msg["name"] == "player_1":
             self.poker_table.first_raise(int(msg["value"]))
+            data = {}
+            data["command"] = "set_opp"
+            data["state"] = "Raise"
+            data["value"] = msg["value"]
+            self.client2.write(json.dumps([data, com]))
+            self.client1.write(json.dumps([com]))
         else:
             self.poker_table.second_raise(int(msg["value"]))
+            data = {}
+            data["command"] = "set_opp"
+            data["state"] = "Raise"
+            data["value"] = msg["value"]
+            self.client1.write(json.dumps([data, com]))
+            self.client2.write(json.dumps([com]))
 
     def call_option(self, msg):
+        com = self.community_cards()
         if msg["name"] == "player_1":
             self.poker_table.first_call()
             data = {}
             data["command"] = "set_opp"
             data["state"] = "Call"
-            print("from 1 to 2")
-            self.client2.write(json.dumps([data]))
+            self.client2.write(json.dumps([data, com]))
+            self.client1.write(json.dumps([com]))
         else:
             self.poker_table.second_call()
             data = {}
             data["command"] = "set_opp"
             data["state"] = "Call"
-            print("from 2 to 1")
-            self.client1.write(json.dumps([data]))
+            self.client1.write(json.dumps([data, com]))
+            self.client2.write(json.dumps([com]))
+        if self.poker_table.winner != -1:
+            sleep(2)
+            self.start_game()
+
 
     def on_ready_read(self):
         msg = self.sender().readAll()
         print(string_from_byte(msg))
-        coms = json.loads(string_from_byte(msg))
-        print(coms)
-        for data in coms:
-            if data["command"] == "Pass":
-                self.pass_option(data)
-            elif data["command"] == "Check":
-                self.check_option(data)
-            elif data["command"] == "Raise":
-                self.raise_option(data)
-            elif data["command"] == "Call":
-                self.call_option(data)
+        for f in string_from_byte(msg).split("/n"):
+            if f == "":
+                continue
+            coms = json.loads(f.strip())
+            print(coms)
+            for data in coms:
+                if data["command"] == "Pass":
+                    self.pass_option(data)
+                elif data["command"] == "Check":
+                    self.check_option(data)
+                elif data["command"] == "Raise":
+                    self.raise_option(data)
+                elif data["command"] == "Call":
+                    self.call_option(data)
 
 
+    def community_cards(self):
+        data = {}
+        data["command"] = "set_community"
+        cards = []
+        for i in self.poker_table.open:
+            f = {}
+            f["suit"] = suits[i.suit]
+            f["value"] = i.value
+            cards.append(f)
+        data["cards"] = cards
+        return data
 
 
 

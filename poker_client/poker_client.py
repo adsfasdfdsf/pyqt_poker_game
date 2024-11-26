@@ -25,6 +25,22 @@ class Ui_MainWindow(object):
         self.pot_label.setGeometry(QtCore.QRect(10, 10, 101, 31))
         self.pot_label.setObjectName("pot_label")
 
+        self.balance_label = QtWidgets.QLabel(parent=self.centralwidget)
+        self.balance_label.setGeometry(QtCore.QRect(121, 10, 211, 31))
+        self.balance_label.setObjectName("balance_label")
+
+        self.bid_label = QtWidgets.QLabel(parent=self.centralwidget)
+        self.bid_label.setGeometry(QtCore.QRect(231, 10, 321, 31))
+        self.bid_label.setObjectName("bid_label")
+
+        self.opp_bid_label = QtWidgets.QLabel(parent=self.centralwidget)
+        self.opp_bid_label.setGeometry(QtCore.QRect(341, 10, 431, 31))
+        self.opp_bid_label.setObjectName("opp_bid_label")
+
+        self.opp_move_label = QtWidgets.QLabel(parent=self.centralwidget)
+        self.opp_move_label.setGeometry(QtCore.QRect(451, 10, 541, 31))
+        self.opp_move_label.setObjectName("opp_move_label")
+
         self.raise_slider = QtWidgets.QSlider(parent=self.centralwidget)
         self.raise_slider.setGeometry(QtCore.QRect(330, 560, 160, 22))
         self.raise_slider.setOrientation(QtCore.Qt.Orientation.Horizontal)
@@ -66,9 +82,13 @@ class Ui_MainWindow(object):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
         self.table_pixmap.setText(_translate("MainWindow", "TextLabel"))
-        self.pot_label.setText(_translate("MainWindow", "TextLabel"))
+        self.pot_label.setText(_translate("MainWindow", "Pot: 0"))
         self.check_button.setText(_translate("MainWindow", "Check"))
         self.call_button.setText(_translate("MainWindow", "Call"))
         self.raise_button.setText(_translate("MainWindow", "Raise"))
         self.pass_button.setText(_translate("MainWindow", "Pass"))
         self.label.setText(_translate("MainWindow", "Amount to raise:"))
+        self.balance_label.setText(_translate("MainWindow", "Balance: "))
+        self.bid_label.setText(_translate("MainWindow", "Your bid: 0"))
+        self.opp_bid_label.setText(_translate("MainWindow", "Opponent bid: 0"))
+        self.opp_move_label.setText(_translate("MainWindow", "Opponent move: "))

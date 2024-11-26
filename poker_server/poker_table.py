@@ -33,6 +33,12 @@ class PokerTable:
         self.winner = -1
 
     def next_circle(self):
+        if self.state1 == State.Pass:
+            self.winner = 2
+            return
+        elif self.state2 == State.Pass:
+            self.winner = 1
+            return
         if len(self.open) == 5:
             self.winner = result(self.open, self.cards1, self.cards2)
             if self.winner == 1:
@@ -40,8 +46,6 @@ class PokerTable:
             elif self.winner == 2:
                 self.balance2 += self.pot
             return
-        self.bid2 = 0
-        self.bid1 = 0
         self.turn = False
         self.state1 = State.No
         self.state2 = State.No
