@@ -28,6 +28,6 @@ for row in range(4):
             op = output_folder + "Spears/"
         card = image.crop((left, upper, right, lower))
         card = card.resize((card_width // 3, card_height // 3))
-        card.save(f"{op}card_{col + 2}.png")
+        card.save(f"{op}card_{col + 1}.png")
         card_count += 1
 
