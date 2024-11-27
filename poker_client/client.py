@@ -55,10 +55,11 @@ class PokerApp(QMainWindow, Ui_MainWindow):
         self.socket.readyRead.connect(self.on_ready_read)
         hostname, ok_pressed = QInputDialog.getText(self, "Enter ip of a host",
                                                     "Enter ip of a host")
-        if ok_pressed:
-            self.socket.connectToHost(hostname, 50051)
-        else:
-            self.close()
+        with open("./config", mode="r") as f:
+            if ok_pressed:
+                self.socket.connectToHost(hostname, int(f.readline().split()[1]))
+            else:
+                self.close()
         self.name = ""
         self.balance = 0
         self.bid = 0

@@ -1,13 +1,14 @@
-import sys
-import sqlite3
-from PyQt6.QtNetwork import QTcpServer
-from PyQt6.QtCore import QObject
-from PyQt6.QtWidgets import QApplication
 import json
+import sqlite3
+import sys
 from time import sleep
 
-from poker_table import PokerTable
+from PyQt6.QtCore import QObject
+from PyQt6.QtNetwork import QTcpServer
+from PyQt6.QtWidgets import QApplication
+
 from card import suits
+from poker_table import PokerTable
 
 
 def string_from_byte(n):
@@ -28,7 +29,8 @@ class Session(QObject):
 class Server(QObject):
     def __init__(self):
         super().__init__()
-        self.port = 50051
+        with open("./config", mode="r") as f:
+            self.port = int(f.readline().split()[1])
         self.server = QTcpServer(self)
         self.server.newConnection.connect(self.handle_new_connection)
         self.players = 0
@@ -55,8 +57,6 @@ class Server(QObject):
             if (self.client1 is not None) and (self.client2 is not None):
                 self.start_game()
 
-
-
     def start_game(self):
         prev_winner = self.poker_table.winner
         win = {}
@@ -67,13 +67,12 @@ class Server(QObject):
         self.meet_player(1)
         self.meet_player(2)
 
-
     def meet_player(self, num):
         cur = self.con.cursor()
         res1 = cur.execute(f"""SELECT money FROM Balance
-                       WHERE id = ?""", (self.client1.socket.peerAddress().toString(), )).fetchall()
+                       WHERE id = ?""", (self.client1.socket.peerAddress().toString(),)).fetchall()
         res2 = cur.execute(f"""SELECT money FROM Balance
-                       WHERE id = ?""", (self.client2.socket.peerAddress().toString(), )).fetchall()
+                       WHERE id = ?""", (self.client2.socket.peerAddress().toString(),)).fetchall()
         if res1 and res2 and (res1[0][0] > 100) and (res2[0][0] > 100):
             self.poker_table = PokerTable(res1[0][0], res2[0][0])
         elif res1 and (res1[0][0] > 100):
@@ -102,7 +101,6 @@ class Server(QObject):
             data3 = {}
             data3["command"] = "set_name"
             data3["name"] = "player_1"
-
 
             msg = json.dumps([data3, data, data2])
             print(msg, 1)
@@ -201,7 +199,6 @@ class Server(QObject):
             sleep(2)
             self.start_game()
 
-
     def on_ready_read(self):
         msg = self.sender().readAll()
         print(string_from_byte(msg))
@@ -224,7 +221,7 @@ class Server(QObject):
                         cur = self.con.cursor()
                         cur.execute(f"""UPDATE Balance
                                        SET money = {self.poker_table.balance1}
-                                       WHERE id = ?""", (self.client1.socket.peerAddress().toString(), ))
+                                       WHERE id = ?""", (self.client1.socket.peerAddress().toString(),))
                         self.client1 = None
                         nmsg = {}
                         if self.client2:
@@ -238,7 +235,7 @@ class Server(QObject):
                         cur = self.con.cursor()
                         cur.execute(f"""UPDATE Balance
                                         SET money = {self.poker_table.balance2}
-                                        WHERE id = ?""", (self.client2.socket.peerAddress().toString(), ))
+                                        WHERE id = ?""", (self.client2.socket.peerAddress().toString(),))
                         self.client2 = None
                         nmsg = {}
                         if self.client1:
@@ -249,8 +246,6 @@ class Server(QObject):
                             self.client1.write(json.dumps([nmsg, nmsg2]))
                         cur.close()
                     return
-
-
 
     def community_cards(self):
         data = {}
@@ -263,9 +258,6 @@ class Server(QObject):
             cards.append(f)
         data["cards"] = cards
         return data
-
-
-
 
     def on_disconnected(self):
         print("client disconnected")

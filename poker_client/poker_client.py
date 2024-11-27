@@ -13,6 +13,7 @@ from PyQt6.QtGui import QPixmap, QImage
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
+        MainWindow.setWindowTitle("Poker")
         MainWindow.resize(847, 603)
         self.centralwidget = QtWidgets.QWidget(parent=MainWindow)
         self.centralwidget.setObjectName("centralwidget")
