@@ -66,8 +66,6 @@ class Server(QObject):
         cur = self.con.cursor()
         res1 = cur.execute(f"""SELECT money FROM Balance
                        WHERE id = ?""", (self.client1.socket.peerAddress().toString(),)).fetchone()
-        res2 = cur.execute(f"""SELECT money FROM Balance
-                       WHERE id = ?""", (self.client2.socket.peerAddress().toString(),)).fetchone()
 
         if not res1:
             cur.execute(f"""INSERT INTO Balance
@@ -77,6 +75,8 @@ class Server(QObject):
             cur.execute(f"""UPDATE Balance
                            SET money = {self.poker_table.balance1}
                            WHERE id = ?""", (self.client1.socket.peerAddress().toString(),))
+        res2 = cur.execute(f"""SELECT money FROM Balance
+                               WHERE id = ?""", (self.client2.socket.peerAddress().toString(),)).fetchone()
         if not res2:
             cur.execute(f"""INSERT INTO Balance
                                  VALUES (?, ?)""",
