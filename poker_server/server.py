@@ -62,6 +62,31 @@ class Server(QObject):
         win = {}
         win["command"] = "result"
         win["winner"] = "player_" + str(prev_winner)
+
+        cur = self.con.cursor()
+        res1 = cur.execute(f"""SELECT money FROM Balance
+                       WHERE id = ?""", (self.client1.socket.peerAddress().toString(),)).fetchone()
+        res2 = cur.execute(f"""SELECT money FROM Balance
+                       WHERE id = ?""", (self.client2.socket.peerAddress().toString(),)).fetchone()
+
+        if not res1:
+            cur.execute(f"""INSERT INTO Balance
+                                 VALUES (?, ?)""",
+                        (self.client1.socket.peerAddress().toString(), self.poker_table.balance1))
+        else:
+            cur.execute(f"""UPDATE Balance
+                           SET money = {self.poker_table.balance1}
+                           WHERE id = ?""", (self.client1.socket.peerAddress().toString(),))
+        if not res2:
+            cur.execute(f"""INSERT INTO Balance
+                                 VALUES (?, ?)""",
+                        (self.client2.socket.peerAddress().toString(), self.poker_table.balance2))
+        else:
+            cur.execute(f"""UPDATE Balance
+                           SET money = {self.poker_table.balance2}
+                           WHERE id = ?""", (self.client2.socket.peerAddress().toString(),))
+        self.con.commit()
+        cur.close()
         self.client1.write(json.dumps([win]))
         self.client2.write(json.dumps([win]))
         self.meet_player(1)
@@ -70,17 +95,12 @@ class Server(QObject):
     def meet_player(self, num):
         cur = self.con.cursor()
         res1 = cur.execute(f"""SELECT money FROM Balance
-                       WHERE id = ?""", (self.client1.socket.peerAddress().toString(),)).fetchall()
+                       WHERE id = ?""", (self.client1.socket.peerAddress().toString(),)).fetchone()
         res2 = cur.execute(f"""SELECT money FROM Balance
-                       WHERE id = ?""", (self.client2.socket.peerAddress().toString(),)).fetchall()
-        if res1 and res2 and (res1[0][0] > 100) and (res2[0][0] > 100):
-            self.poker_table = PokerTable(res1[0][0], res2[0][0])
-        elif res1 and (res1[0][0] > 100):
-            self.poker_table = PokerTable(res1[0][0], 1000)
-        elif res2 and (res2[0][0] > 100):
-            self.poker_table = PokerTable(1000, res2[0][0])
-        else:
-            self.poker_table = PokerTable(1000, 1000)
+                       WHERE id = ?""", (self.client2.socket.peerAddress().toString(),)).fetchone()
+        cur.close()
+        print(res1, "\n", res2)
+        self.poker_table = PokerTable(int(res1[0]), int(res2[0]))
 
         if num == 1:
             print("meet 1")
@@ -103,7 +123,7 @@ class Server(QObject):
             data3["name"] = "player_1"
 
             msg = json.dumps([data3, data, data2])
-            print(msg, 1)
+            print(msg)
             self.client1.write(msg)
         else:
             print("meet 2")
@@ -222,6 +242,7 @@ class Server(QObject):
                         cur.execute(f"""UPDATE Balance
                                        SET money = {self.poker_table.balance1}
                                        WHERE id = ?""", (self.client1.socket.peerAddress().toString(),))
+                        self.con.commit()
                         self.client1 = None
                         nmsg = {}
                         if self.client2:
@@ -236,6 +257,7 @@ class Server(QObject):
                         cur.execute(f"""UPDATE Balance
                                         SET money = {self.poker_table.balance2}
                                         WHERE id = ?""", (self.client2.socket.peerAddress().toString(),))
+                        self.con.commit()
                         self.client2 = None
                         nmsg = {}
                         if self.client1:
