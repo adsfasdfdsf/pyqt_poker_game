@@ -1,13 +1,15 @@
 import json
 import sys
-from PIL import Image
 
-from PyQt6.QtGui import QPixmap, QImage
-from PyQt6.QtWidgets import QMainWindow, QLabel, QApplication
-from poker_client import Ui_MainWindow
+from PIL import Image
 from PyQt6 import QtCore
-from card import Card, suits, Suit, to_suits, State
+from PyQt6.QtGui import QPixmap, QImage
 from PyQt6.QtNetwork import QTcpSocket
+from PyQt6.QtWidgets import QMainWindow, QApplication, QInputDialog
+
+from card import Card, suits, to_suits, State
+from poker_client import Ui_MainWindow
+from winner import Res
 
 
 def string_from_byte(n):
@@ -30,11 +32,8 @@ def make_table(my_cards, deck):
     image.paste(card1, ((x // 2) - card_width - 5, (y // 6) * 4))
     image.paste(card2, ((x // 2) + 5, (y // 6) * 4))
 
-
     image.paste(unknown, ((x // 2) - card_width - 5, 10))
     image.paste(unknown, ((x // 2) + 5, 10))
-
-
 
     cards = len(deck)
     for i in range(cards):
@@ -54,19 +53,28 @@ class PokerApp(QMainWindow, Ui_MainWindow):
         self.socket = QTcpSocket(self)
         self.socket.connected.connect(self.on_connected)
         self.socket.readyRead.connect(self.on_ready_read)
-        self.socket.connectToHost("127.0.0.1", 50051)
+        hostname, ok_pressed = QInputDialog.getText(self, "Enter ip of a host",
+                                                    "Enter ip of a host")
+        if ok_pressed:
+            self.socket.connectToHost(hostname, 50051)
+        else:
+            self.close()
         self.name = ""
         self.balance = 0
         self.bid = 0
         self.opp = State.No
         self.opp_bid = 0
         self.pot = 0
+        self.res_widget = None
+        self.destroyed.connect(self.leave)
+        self.leave_button.clicked.connect(self.leave)
 
     def set_name(self, name):
         self.name = name
 
     def set_cards(self, data):
-        self.hand = [Card(to_suits[data[0]["suit"]], data[0]["value"]), Card(to_suits[data[1]["suit"]], data[1]["value"])]
+        self.hand = [Card(to_suits[data[0]["suit"]], data[0]["value"]),
+                     Card(to_suits[data[1]["suit"]], data[1]["value"])]
 
     def set_community_cards(self, data):
         cards = []
@@ -75,10 +83,26 @@ class PokerApp(QMainWindow, Ui_MainWindow):
         print(cards)
         self.deck = cards
 
+    def leave(self):
+        data = {}
+        data["command"] = "Leave"
+        data["name"] = self.name
+        self.write(json.dumps([data]))
+        self.close()
+
     def end_game(self, n):
         if n["winner"] == self.name:
             self.balance += self.pot
             self.balance_label.setText(f"Balance: {self.balance}")
+            self.res_widget = Res(True)
+            self.res_widget.show()
+            print(1)
+        else:
+            self.res_widget = Res(False)
+            self.res_widget.show()
+            print(1)
+
+        self.res_widget.leave_button.clicked.connect(self.leave)
 
         self.deck = []
         self.hand = []
@@ -119,6 +143,8 @@ class PokerApp(QMainWindow, Ui_MainWindow):
                     if data["winner"] == "player_-1":
                         continue
                     self.end_game(data)
+                elif data["command"] == "leave":
+                    self.opp_move_label.setText("Opponent Left")
                 elif data["command"] == "set_opp":
                     self.enable_buttons()
                     if data["state"] == "Call":
@@ -163,13 +189,11 @@ class PokerApp(QMainWindow, Ui_MainWindow):
         self.update_background()
         self.disable_buttons()
 
-
     def enable_buttons(self):
         self.raise_button.setDisabled(False)
         self.check_button.setDisabled(False)
         self.call_button.setDisabled(False)
         self.pass_button.setDisabled(False)
-
 
     def disable_buttons(self):
         self.raise_button.setDisabled(True)

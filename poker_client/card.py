@@ -9,6 +9,7 @@ class State(Enum):
     Raise = 3
     Pass = 4
 
+
 class Suit(Enum):
     Spears = 0
     Spades = 1
@@ -18,6 +19,7 @@ class Suit(Enum):
 
 suits = {Suit.Spades: "Spades", Suit.Spears: "Spears", Suit.Hearts: "Hearts", Suit.Diamonds: "Diamonds"}
 to_suits = {"Spades": Suit.Spades, "Spears": Suit.Spears, "Hearts": Suit.Hearts, "Diamonds": Suit.Diamonds}
+
 
 class Deck:
     def __init__(self):

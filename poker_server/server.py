@@ -1,5 +1,6 @@
 import sys
-from PyQt6.QtNetwork import QTcpServer, QTcpSocket
+import sqlite3
+from PyQt6.QtNetwork import QTcpServer
 from PyQt6.QtCore import QObject
 from PyQt6.QtWidgets import QApplication
 import json
@@ -34,6 +35,7 @@ class Server(QObject):
         self.poker_table = PokerTable(1000, 1000)
         self.client1 = None
         self.client2 = None
+        self.con = sqlite3.connect("balance.sqlite")
         self.opened_last = []
 
     def handle_new_connection(self):
@@ -67,7 +69,20 @@ class Server(QObject):
 
 
     def meet_player(self, num):
-        self.poker_table = PokerTable(self.poker_table.balance1, self.poker_table.balance2)
+        cur = self.con.cursor()
+        res1 = cur.execute(f"""SELECT money FROM Balance
+                       WHERE id = ?""", (self.client1.socket.peerAddress().toString(), )).fetchall()
+        res2 = cur.execute(f"""SELECT money FROM Balance
+                       WHERE id = ?""", (self.client2.socket.peerAddress().toString(), )).fetchall()
+        if res1 and res2 and (res1[0][0] > 100) and (res2[0][0] > 100):
+            self.poker_table = PokerTable(res1[0][0], res2[0][0])
+        elif res1 and (res1[0][0] > 100):
+            self.poker_table = PokerTable(res1[0][0], 1000)
+        elif res2 and (res2[0][0] > 100):
+            self.poker_table = PokerTable(1000, res2[0][0])
+        else:
+            self.poker_table = PokerTable(1000, 1000)
+
         if num == 1:
             print("meet 1")
             data = {}
@@ -204,6 +219,37 @@ class Server(QObject):
                     self.raise_option(data)
                 elif data["command"] == "Call":
                     self.call_option(data)
+                elif data["command"] == "Leave":
+                    if data["name"] == "player_1":
+                        cur = self.con.cursor()
+                        cur.execute(f"""UPDATE Balance
+                                       SET money = {self.poker_table.balance1}
+                                       WHERE id = ?""", (self.client1.socket.peerAddress().toString(), ))
+                        self.client1 = None
+                        nmsg = {}
+                        if self.client2:
+                            nmsg["command"] = "result"
+                            nmsg["winner"] = "player_2"
+                            nmsg2 = {}
+                            nmsg2["command"] = "leave"
+                            self.client2.write(json.dumps([nmsg, nmsg2]))
+                        cur.close()
+                    else:
+                        cur = self.con.cursor()
+                        cur.execute(f"""UPDATE Balance
+                                        SET money = {self.poker_table.balance2}
+                                        WHERE id = ?""", (self.client2.socket.peerAddress().toString(), ))
+                        self.client2 = None
+                        nmsg = {}
+                        if self.client1:
+                            nmsg["command"] = "result"
+                            nmsg["winner"] = "player_1"
+                            nmsg2 = {}
+                            nmsg2["command"] = "leave"
+                            self.client1.write(json.dumps([nmsg, nmsg2]))
+                        cur.close()
+                    return
+
 
 
     def community_cards(self):
@@ -222,7 +268,8 @@ class Server(QObject):
 
 
     def on_disconnected(self):
-        print("client disconnected") #TODO free slot
+        print("client disconnected")
+        self.players -= 1
 
     def start_server(self):
         if self.server.listen(port=self.port):

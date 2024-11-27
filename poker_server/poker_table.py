@@ -1,7 +1,8 @@
-from enum import Enum
-from card import Deck
 from collections import Counter
+from enum import Enum
 from itertools import combinations
+
+from card import Deck
 
 
 class State(Enum):

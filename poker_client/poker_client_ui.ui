@@ -1,128 +1,128 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>MainWindow</class>
- <widget class="QMainWindow" name="MainWindow">
-  <property name="geometry">
-   <rect>
-    <x>0</x>
-    <y>0</y>
-    <width>847</width>
-    <height>603</height>
-   </rect>
-  </property>
-  <property name="windowTitle">
-   <string>MainWindow</string>
-  </property>
-  <widget class="QWidget" name="centralwidget">
-   <widget class="QLabel" name="table_pixmap">
-    <property name="geometry">
-     <rect>
-      <x>0</x>
-      <y>50</y>
-      <width>861</width>
-      <height>451</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>TextLabel</string>
-    </property>
-    <property name="scaledContents">
-     <bool>true</bool>
-    </property>
-   </widget>
-   <widget class="QLabel" name="pot_label">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>10</y>
-      <width>101</width>
-      <height>31</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>TextLabel</string>
-    </property>
-   </widget>
-   <widget class="QSlider" name="raise_slider">
-    <property name="geometry">
-     <rect>
-      <x>330</x>
-      <y>560</y>
-      <width>160</width>
-      <height>22</height>
-     </rect>
-    </property>
-    <property name="orientation">
-     <enum>Qt::Horizontal</enum>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="check_button">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>550</y>
-      <width>113</width>
-      <height>32</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Check</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="call_button">
-    <property name="geometry">
-     <rect>
-      <x>160</x>
-      <y>550</y>
-      <width>113</width>
-      <height>32</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Call</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="raise_button">
-    <property name="geometry">
-     <rect>
-      <x>520</x>
-      <y>550</y>
-      <width>113</width>
-      <height>32</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Raise</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="pass_button">
-    <property name="geometry">
-     <rect>
-      <x>680</x>
-      <y>550</y>
-      <width>113</width>
-      <height>32</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Pass</string>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label">
-    <property name="geometry">
-     <rect>
-      <x>350</x>
-      <y>540</y>
-      <width>131</width>
-      <height>16</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Amount to raise:</string>
-    </property>
-   </widget>
-  </widget>
- </widget>
- <resources/>
- <connections/>
+    <class>MainWindow</class>
+    <widget class="QMainWindow" name="MainWindow">
+        <property name="geometry">
+            <rect>
+                <x>0</x>
+                <y>0</y>
+                <width>847</width>
+                <height>603</height>
+            </rect>
+        </property>
+        <property name="windowTitle">
+            <string>MainWindow</string>
+        </property>
+        <widget class="QWidget" name="centralwidget">
+            <widget class="QLabel" name="table_pixmap">
+                <property name="geometry">
+                    <rect>
+                        <x>0</x>
+                        <y>50</y>
+                        <width>861</width>
+                        <height>451</height>
+                    </rect>
+                </property>
+                <property name="text">
+                    <string>TextLabel</string>
+                </property>
+                <property name="scaledContents">
+                    <bool>true</bool>
+                </property>
+            </widget>
+            <widget class="QLabel" name="pot_label">
+                <property name="geometry">
+                    <rect>
+                        <x>10</x>
+                        <y>10</y>
+                        <width>101</width>
+                        <height>31</height>
+                    </rect>
+                </property>
+                <property name="text">
+                    <string>TextLabel</string>
+                </property>
+            </widget>
+            <widget class="QSlider" name="raise_slider">
+                <property name="geometry">
+                    <rect>
+                        <x>330</x>
+                        <y>560</y>
+                        <width>160</width>
+                        <height>22</height>
+                    </rect>
+                </property>
+                <property name="orientation">
+                    <enum>Qt::Horizontal</enum>
+                </property>
+            </widget>
+            <widget class="QPushButton" name="check_button">
+                <property name="geometry">
+                    <rect>
+                        <x>10</x>
+                        <y>550</y>
+                        <width>113</width>
+                        <height>32</height>
+                    </rect>
+                </property>
+                <property name="text">
+                    <string>Check</string>
+                </property>
+            </widget>
+            <widget class="QPushButton" name="call_button">
+                <property name="geometry">
+                    <rect>
+                        <x>160</x>
+                        <y>550</y>
+                        <width>113</width>
+                        <height>32</height>
+                    </rect>
+                </property>
+                <property name="text">
+                    <string>Call</string>
+                </property>
+            </widget>
+            <widget class="QPushButton" name="raise_button">
+                <property name="geometry">
+                    <rect>
+                        <x>520</x>
+                        <y>550</y>
+                        <width>113</width>
+                        <height>32</height>
+                    </rect>
+                </property>
+                <property name="text">
+                    <string>Raise</string>
+                </property>
+            </widget>
+            <widget class="QPushButton" name="pass_button">
+                <property name="geometry">
+                    <rect>
+                        <x>680</x>
+                        <y>550</y>
+                        <width>113</width>
+                        <height>32</height>
+                    </rect>
+                </property>
+                <property name="text">
+                    <string>Pass</string>
+                </property>
+            </widget>
+            <widget class="QLabel" name="label">
+                <property name="geometry">
+                    <rect>
+                        <x>350</x>
+                        <y>540</y>
+                        <width>131</width>
+                        <height>16</height>
+                    </rect>
+                </property>
+                <property name="text">
+                    <string>Amount to raise:</string>
+                </property>
+            </widget>
+        </widget>
+    </widget>
+    <resources/>
+    <connections/>
 </ui>
